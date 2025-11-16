@@ -43,7 +43,7 @@ static char *ft_expand_buffer(char **buffer , size_t buffer_size) {
 	if(!new_buffer)
 		return (ft_cleanup(buffer));
 	while((*buffer)[i]) {
-		new_buffer[i] = *buffer[i]; 
+		new_buffer[i] = (*buffer)[i]; 
 		i++; 
 	}	 
 	new_buffer[i] = '\0'; 
@@ -73,8 +73,15 @@ static char *ft_read_until_newline(int fd, char **buffer, int bytes) {
 		// reading new data 
 		bytes = read(fd, *buffer + buffer_size, BUFFER_SIZE); 
 		(*buffer)[buffer_size + bytes] = '\0'; 
-		if(bytes == 0) 
-			return(ft_get_line(buffer, buffer_size)); 
+		 if(bytes == 0) // EOF check
+        {
+            // If the buffer is empty AND we hit EOF, we must return NULL.
+            if ((*buffer)[0] == '\0') 
+                return(ft_cleanup(buffer));
+            
+            // Otherwise, return the last remaining line (buffer_size is correct)
+            return(ft_get_line(buffer, buffer_size)); 
+        }
 		if(bytes == -1) 
 			return (ft_cleanup(buffer)); 
 		newline_position = ft_strchr(*buffer, '\n')	; 
@@ -127,3 +134,4 @@ char *get_next_line(int fd) {
 
 	return (ft_read_until_newline(fd, &buffer, bytes)); 
 }
+
