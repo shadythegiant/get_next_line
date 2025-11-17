@@ -19,7 +19,7 @@ static void	*ft_cleanup(char **buffer)
 	return (NULL);
 }
 
-static ft_extract_line(char **buffer, size_t index)
+static char	*ft_extract_line(char **buffer, size_t index)
 {
 	char	*tmp;
 	char	*buffer_cpy;
@@ -36,8 +36,6 @@ static ft_extract_line(char **buffer, size_t index)
 		buffer_cpy[i++] = '\0';
 	return (tmp);
 }
-
-
 
 static char	*ft_reallocate_buff(char **buffer, size_t occupied_size)
 {
@@ -86,7 +84,6 @@ static char	*ft_read_until_newline(int fd, char **buffer, int bytes)
 	}
 	return (ft_extract_line(buffer, newline_index + 1));
 }
-
 
 char	*get_next_line(int fd)
 {
