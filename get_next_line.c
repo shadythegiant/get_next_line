@@ -32,19 +32,21 @@ static char	*ft_extract_line(char **buffer, size_t index)
 		return (ft_cleanup(buffer));
 	while (buffer_cpy[index])
 		buffer_cpy[i++] = buffer_cpy[index++];
-	while (buffer_cpy[i])
-		buffer_cpy[i++] = '\0';
+	
+	buffer_cpy[i] = '\0';
 	return (tmp);
 }
 
 static char	*ft_reallocate_buff(char **buffer, size_t occupied_size)
 {
 	char			*new_buffer;
+	char			*old_buffer; 
 	size_t			i;
 	unsigned long	read_buffer_size;
 
 	read_buffer_size = (unsigned long)BUFFER_SIZE;
 	i = 0;
+	old_buffer = *buffer; 
 	new_buffer = (char *)malloc(read_buffer_size + occupied_size + 1);
 	if (!new_buffer)
 		return (NULL);
@@ -54,15 +56,15 @@ static char	*ft_reallocate_buff(char **buffer, size_t occupied_size)
 		i++;
 	}
 	new_buffer[i] = '\0';
-	free(*buffer);
 	*buffer = new_buffer;
+	free(old_buffer); 
 	return (new_buffer);
 }
 
 static char	*ft_read_until_newline(int fd, char **buffer, int bytes)
 {
 	size_t	occupied_size;
-	size_t	newline_index;
+	ssize_t	newline_index;
 
 	newline_index = ft_strchr(*buffer, '\n');
 	while (newline_index == -1)
@@ -71,6 +73,8 @@ static char	*ft_read_until_newline(int fd, char **buffer, int bytes)
 		if (!ft_reallocate_buff(buffer, occupied_size))
 			return (ft_cleanup(buffer));
 		bytes = read(fd, *buffer + occupied_size, BUFFER_SIZE);
+		if (bytes == -1)
+			return (ft_cleanup(buffer));
 		(*buffer)[occupied_size + bytes] = '\0';
 		if (bytes == 0)
 		{
@@ -78,8 +82,7 @@ static char	*ft_read_until_newline(int fd, char **buffer, int bytes)
 				return (ft_cleanup(buffer));
 			return (ft_extract_line(buffer, occupied_size));
 		}
-		if (bytes == -1)
-			return (ft_cleanup(buffer));
+		
 		newline_index = ft_strchr(*buffer, '\n');
 	}
 	return (ft_extract_line(buffer, newline_index + 1));
