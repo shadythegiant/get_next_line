@@ -1,15 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: azahidi <azahidi@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/17 16:04:50 by azahidi           #+#    #+#             */
-/*   Updated: 2025/11/17 16:04:52 by azahidi          ###   ########.fr       */
+/*   Created: 2025/12/08 14:29:32 by azahidi           #+#    #+#             */
+/*   Updated: 2025/12/08 14:29:35 by azahidi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "get_next_line.h"
+
+#include "get_next_line_bonus.h"
 
 static void	*ft_cleanup(char **buffer)
 {
@@ -88,27 +89,27 @@ static char	*ft_read_until_newline(int fd, char **buffer, int bytes)
 
 char	*get_next_line(int fd)
 {
-	static char		*buffer;
+	static char		*buffer[FD_BUFFER_SIZE];
 	unsigned long	read_buffer_size;
 	int				bytes;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd > FD_BUFFER_SIZE)
 		return (NULL);
 	read_buffer_size = (unsigned long)BUFFER_SIZE;
 	bytes = 0;
-	if (!buffer)
+	if (!buffer[fd])
 	{
-		buffer = (char *)malloc(read_buffer_size + 1);
-		if (!buffer)
+		buffer[fd] = (char *)malloc(read_buffer_size + 1);
+		if (!buffer[fd])
 			return (NULL);
-		buffer[0] = '\0';
+		buffer[fd][0] = '\0';
 	}
-	if (!buffer[0])
+	if (!buffer[fd][0])
 	{
-		bytes = read(fd, buffer, BUFFER_SIZE);
+		bytes = read(fd, buffer[fd], BUFFER_SIZE);
 		if (bytes == 0 || bytes == -1)
-			return (ft_cleanup(&buffer));
-		buffer[bytes] = '\0';
+			return (ft_cleanup(&buffer[fd]));
+		buffer[fd][bytes] = '\0';
 	}
-	return (ft_read_until_newline(fd, &buffer, bytes));
+	return (ft_read_until_newline(fd, &buffer[fd], bytes));
 }
